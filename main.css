@@ -29,3 +29,7 @@
 #header.button {
 	height: 50px !important;
 }
+
+.w-box {
+	border-radius: 3px !important;
+}
