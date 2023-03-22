@@ -4,34 +4,53 @@ var getSaldo = function() {
 	for (var i = 0; i < accountElements.length; i++) {
 		data.push(accountElements[i].textContent);
 	}
-	calculateSaldo(data)
+
+	  const saldo = data[1];
+	  const difference = data[3];
+	  displaySaldo(calculateTime(Math.abs(saldo).toString(), Math.abs(difference).toString()), data)
 }
 
 window.onload = function() {
-	setTimeout(getSaldo, 2000);
+	
+
+
+	// Configure the observer to watch for changes to the style attribute
+	observer.observe(workspaceCallbackProcess, { attributes: true });
 }
-function calculateSaldo(data) {
-	if (data[0] !== 'Absent') {
-		const num1 = data[1];
-		const num2 = data[3];
+	// Select the element to observe
+	const workspaceCallbackProcess = document.getElementById("workspaceCallbackProcess");
 
-		const [hours1, minutes1] = num1.split(".");
-		const [hours2, minutes2] = num2.split(".");
-
-		const totalMinutes = parseInt(minutes1) - parseInt(minutes2);
-		const totalHours = parseInt(hours1) - parseInt(hours2) + Math.floor(totalMinutes / 60);
-
-		const saldo = totalHours + "." + (totalMinutes % 60).toString().padStart(2, "0");
-
-		const hours = Math.floor(saldo);
-		const minutes = Math.floor((saldo - hours) * 60);
-		if (minutes > 59) {
-		hours += 1;
-		minutes = 0;
+	// Create a new MutationObserver
+	const observer = new MutationObserver((mutations) => {
+	mutations.forEach((mutation) => {
+		// Check if the style attribute was modified
+		if (mutation.attributeName === "style") {console.log("yur2")
+			console.log("yur")
+			getSaldo();
 		}
-		const formattedSaldo = totalHours.toString().padStart(1, '0') + '.' + (60+totalMinutes).toString().padStart(2, '0');
-		console.log(formattedSaldo);
+	});
+	});
+function calculateTime(saldo, difference) {
+	// Extract hours and minutes from the input strings
+	const [saldoHours, saldoMinutes] = saldo.split('.').map(Number);
+	const [diffHours, diffMinutes] = difference.split('.').map(Number);
+  
+	// Calculate the total minutes
+	let totalMinutes = (diffHours * 60 + diffMinutes) - (saldoHours * 60 + saldoMinutes);
+  
+	// Calculate the final hours and minutes
+	const resultHours = Math.floor(totalMinutes / 60);
+	totalMinutes %= 60;
+  
+	// Format the result as a string in the "h.mm" format
+	const result = `${resultHours}.${totalMinutes.toString().padStart(2, '0')}`;
+	return result;
+}
+  
 
+
+function displaySaldo(time, data) {
+	if (data[0] !== 'Absent' && data[1] < 0) {
 		// create a new li element with the account-list-item class
 		const liElement = document.createElement('li');
 		liElement.className = 'account-list-item';
@@ -53,7 +72,7 @@ function calculateSaldo(data) {
 		// create a new div element with the account-list-element-value and account-column classes
 		const divValue = document.createElement('div');
 		divValue.className = 'account-list-element-value account-column';
-		divValue.textContent = formattedSaldo;
+		divValue.textContent = time;
 
 		// append the description div to the column div
 		divColumn.appendChild(divDescription);
@@ -73,4 +92,4 @@ function calculateSaldo(data) {
 	} else {
 		console.log("Absent")
 	}
-}
+  }
