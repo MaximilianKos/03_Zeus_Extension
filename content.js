@@ -1,3 +1,5 @@
+let loaded = false;
+
 window.onload = function () {
 	// Configure the observer to watch for changes to the style attribute
 	observer.observe(workspaceCallbackProcess, { attributes: true });
@@ -11,7 +13,8 @@ const observer = new MutationObserver((mutations) => {
 	mutations.forEach((mutation) => {
 		// Check if the style attribute was modified
 		if (mutation.attributeName === 'style') {
-			setTimeout(getSaldo(), 20);
+			setTimeout(getSaldo(), 50);
+			loaded = true;
 		}
 	});
 });
@@ -63,10 +66,15 @@ function calculateTime(saldo, difference) {
 }
 
 function displaySaldo(time, data) {
+	if (loaded == true) {
+		const element = document.querySelector("#main");
+		element.remove()
+	}
 	if (data[0] !== 'Absent' && data[1] < 0) {
 		// create a new li element with the account-list-item class
 		const liElement = document.createElement('li');
 		liElement.className = 'account-list-item';
+		liElement.id = 'main'
 
 		// create a new div element with the account-row class
 		const divRow = document.createElement('div');
