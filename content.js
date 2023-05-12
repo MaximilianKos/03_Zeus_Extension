@@ -80,7 +80,7 @@ var getSaldoAndDifference = function () {
 	console.log('Saldo: ' + saldo);
 	console.log('Difference: ' + difference);
 	displayElement(calculateSaldoTime(Math.abs(saldo).toString(), Math.abs(difference).toString()), data, 'REAL SALDO');
-	displayElement(calculateTimeOfDay(Math.abs(difference).toString(), convertToUnixTimestamp(currentTime)), data, 'NO MINUS LEAVE');
+	displayElement(calculateTimeOfDay(Math.abs(difference).toString(), convertToUnixTimestamp(currentTime)), data, 'LEAVE FOR NO MINUS');
 };
 
 function displayElement(textContent, data, displayName) {
