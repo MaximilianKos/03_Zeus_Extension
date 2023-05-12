@@ -13,13 +13,61 @@ const observer = new MutationObserver((mutations) => {
 	mutations.forEach((mutation) => {
 		// Check if the style attribute was modified
 		if (mutation.attributeName === 'style') {
-			setTimeout(getSaldo(), 50);
+			setTimeout(getSaldoAndDifference(), 50);
 			loaded = true;
 		}
 	});
 });
 
-var getSaldo = function () {
+/* --- ^^ If Object on Website loaded (Purple loading top right ^^ --- */
+const currentTime = getTime();
+
+function getTime() {
+	const date = new Date();
+	const hours = addLeadingZero(date.getHours());
+	const minutes = addLeadingZero(date.getMinutes());
+	return `${hours}:${minutes}`;
+}
+
+function addLeadingZero(value) {
+	return value < 10 ? `0${value}` : value;
+}
+
+function convertToUnixTimestamp(timeString) {
+	const [hours, minutes] = timeString.split(':');
+	const date = new Date();
+	date.setHours(parseInt(hours, 10));
+	date.setMinutes(parseInt(minutes, 10));
+	date.setSeconds(0);
+	date.setMilliseconds(0);
+	return Math.floor(date.getTime() / 1000);
+}
+
+function convertToNormalTime(timestamp) {
+	const date = new Date(timestamp * 1000);
+	const hours = addLeadingZero(date.getHours());
+	const minutes = addLeadingZero(date.getMinutes());
+	return `${hours}:${minutes}`;
+}
+
+function addMinutesToCurrentTime(diffHours, diffMinutes) {
+	const currentTime = new Date();
+	const currentTimeInMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
+	const diffInMinutes = diffHours * 60 + diffMinutes;
+	const totalMinutes = currentTimeInMinutes + diffInMinutes;
+
+	const newDate = new Date();
+	newDate.setHours(Math.floor(totalMinutes / 60));
+	newDate.setMinutes(totalMinutes % 60);
+
+	const hours = addLeadingZero(newDate.getHours());
+	const minutes = addLeadingZero(newDate.getMinutes());
+	const seconds = addLeadingZero(newDate.getSeconds());
+
+	return `${hours}:${minutes}:${seconds}`;
+}
+
+var getSaldoAndDifference = function () {
 	var accountElements = document.getElementsByClassName('account-list-element-value account-column');
 	var data = [];
 	for (var i = 0; i < accountElements.length; i++) {
@@ -28,12 +76,65 @@ var getSaldo = function () {
 
 	const saldo = data[1];
 	const difference = data[3];
-	displaySaldo(calculateTime(Math.abs(saldo).toString(), Math.abs(difference).toString()), data);
-};
-
-function calculateTime(saldo, difference) {
 	console.log('Saldo: ' + saldo);
 	console.log('Difference: ' + difference);
+	displayElement(calculateSaldoTime(Math.abs(saldo).toString(), Math.abs(difference).toString()), data, 'REAL SALDO');
+	displayElement(calculateTimeOfDay(Math.abs(difference).toString(), convertToUnixTimestamp(currentTime)), data, 'NO MINUS LEAVE');
+};
+
+function displayElement(textContent, data, displayName) {
+	if (loaded == true) {
+		const element = document.querySelector('#main');
+		element.remove();
+	}
+	if (data[0] !== 'Absent' && data[1] < 0) {
+		// create a new li element with the account-list-item class
+		const liElement = document.createElement('li');
+		liElement.className = 'account-list-item';
+		liElement.id = 'main';
+
+		// create a new div element with the account-row class
+		const divRow = document.createElement('div');
+		divRow.className = 'account-row';
+		divRow.style.color = '#ff675c';
+
+		// create a new div element with the account-column class
+		const divColumn = document.createElement('div');
+		divColumn.className = 'account-column';
+
+		// create a new div element with the account-list-item-description and account-inline classes
+		const divDescription = document.createElement('div');
+		divDescription.className = 'account-list-item-description account-inline';
+		divDescription.textContent = displayName;
+
+		// create a new div element with the account-list-element-value and account-column classes
+		const divValue = document.createElement('div');
+		divValue.className = 'account-list-element-value account-column';
+		divValue.textContent = textContent;
+
+		// append the description div to the column div
+		divColumn.appendChild(divDescription);
+
+		// close the column div
+		divRow.appendChild(divColumn);
+
+		// append the value div to the row div
+		divRow.appendChild(divValue);
+
+		// append the row div to the li element
+		liElement.appendChild(divRow);
+
+		// get the element with the 'account-info-result' class and append the new li element to it
+		const accountInfoResult = document.querySelector('.account-list');
+		accountInfoResult.appendChild(liElement);
+	} else {
+		console.log('Absent');
+	}
+}
+
+/* --- ^^ Gloabl Functions ^^ */
+
+function calculateSaldoTime(saldo, difference) {
 	// Check that the input parameters are in the expected format of 'h.mm'
 	if (!/^\d+\.\d{2}$/.test(saldo) || !/^\d+\.\d{2}$/.test(difference)) {
 		return 'Invalid input format. Expected format: h.mm';
@@ -61,56 +162,31 @@ function calculateTime(saldo, difference) {
 
 	// Join the hours and minutes strings together with the appropriate formatting
 	const result = `${hoursString}.${minutesString}`;
-	console.log(result);
 	return result;
 }
 
-function displaySaldo(time, data) {
-	if (loaded == true) {
-		const element = document.querySelector("#main");
-		element.remove()
+/* --- ^^ Calculate Saldo ^^ --- */
+
+//function
+
+/* --- ^^ Caulculate Difference Time ^^ --- */
+
+function calculateTimeOfDay(difference, currentTime) {
+	// Check that the input parameters are in the expected format of 'h.mm'
+	if (!/^\d+\.\d{2}$/.test(difference)) {
+		return 'Invalid input format. Expected format: h.mm';
 	}
-	if (data[0] !== 'Absent' && data[1] < 0) {
-		// create a new li element with the account-list-item class
-		const liElement = document.createElement('li');
-		liElement.className = 'account-list-item';
-		liElement.id = 'main'
 
-		// create a new div element with the account-row class
-		const divRow = document.createElement('div');
-		divRow.className = 'account-row';
-		divRow.style.color = '#ff675c';
+	// Extract hours and minutes from the input string
+	const [diffHours, diffMinutes] = difference.split('.').map(Number);
 
-		// create a new div element with the account-column class
-		const divColumn = document.createElement('div');
-		divColumn.className = 'account-column';
+	// Calculate the total minutes
+	const currentTimeInUnix = currentTime;
 
-		// create a new div element with the account-list-item-description and account-inline classes
-		const divDescription = document.createElement('div');
-		divDescription.className = 'account-list-item-description account-inline';
-		divDescription.textContent = 'REAL SALDO';
+	const diffInMinutes = diffHours * 60 + diffMinutes;
+	const diffInMilliseconds = diffInMinutes * 60 * 1000;
 
-		// create a new div element with the account-list-element-value and account-column classes
-		const divValue = document.createElement('div');
-		divValue.className = 'account-list-element-value account-column';
-		divValue.textContent = time;
-
-		// append the description div to the column div
-		divColumn.appendChild(divDescription);
-
-		// close the column div
-		divRow.appendChild(divColumn);
-
-		// append the value div to the row div
-		divRow.appendChild(divValue);
-
-		// append the row div to the li element
-		liElement.appendChild(divRow);
-
-		// get the element with the 'account-info-result' class and append the new li element to it
-		const accountInfoResult = document.querySelector('.account-list');
-		accountInfoResult.appendChild(liElement);
-	} else {
-		console.log('Absent');
-	}
+	// Add UNIX timestamps toghether
+	const newTimestamp = currentTimeInUnix + Math.floor(diffInMilliseconds / 1000);
+	return convertToNormalTime(newTimestamp + 3600);
 }
