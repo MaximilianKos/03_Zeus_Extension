@@ -167,10 +167,6 @@ function calculateSaldoTime(saldo, difference) {
 
 /* --- ^^ Calculate Saldo ^^ --- */
 
-//function
-
-/* --- ^^ Caulculate Difference Time ^^ --- */
-
 function calculateTimeOfDay(difference, currentTime) {
 	// Check that the input parameters are in the expected format of 'h.mm'
 	if (!/^\d+\.\d{2}$/.test(difference)) {
@@ -190,3 +186,5 @@ function calculateTimeOfDay(difference, currentTime) {
 	const newTimestamp = currentTimeInUnix + Math.floor(diffInMilliseconds / 1000);
 	return convertToNormalTime(newTimestamp + 3600);
 }
+
+/* --- ^^ Caulculate Time Of Day ^^ --- */
