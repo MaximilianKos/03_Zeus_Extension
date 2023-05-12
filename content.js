@@ -1,24 +1,23 @@
 let loaded = false;
 
 window.onload = function () {
-	observeStyleChanges();
+	// Configure the observer to watch for changes to the style attribute
+	observer.observe(workspaceCallbackProcess, { attributes: true });
 };
 
-function observeStyleChanges() {
-	const workspaceCallbackProcess = document.getElementById('workspaceCallbackProcess');
-	const observer = new MutationObserver(handleStyleMutation);
+// Select the element to observe
+const workspaceCallbackProcess = document.getElementById('workspaceCallbackProcess');
 
-	observer.observe(workspaceCallbackProcess, { attributes: true });
-}
-
-function handleStyleMutation(mutations) {
+// Create a new MutationObserver
+const observer = new MutationObserver((mutations) => {
 	mutations.forEach((mutation) => {
+		// Check if the style attribute was modified
 		if (mutation.attributeName === 'style') {
-			setTimeout(getSaldoAndDifference, 50);
+			setTimeout(getSaldoAndDifference(), 50);
 			loaded = true;
 		}
 	});
-}
+});
 
 /* --- ^^ If Object on Website loaded (Purple loading top right ^^ --- */
 const currentTime = getTime();
