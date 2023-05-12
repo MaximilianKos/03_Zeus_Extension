@@ -67,7 +67,7 @@ function addMinutesToCurrentTime(diffHours, diffMinutes) {
 	return `${hours}:${minutes}:${seconds}`;
 }
 
-var getSaldoAndDifference = function () {
+let getSaldoAndDifference = function () {
 	var accountElements = document.getElementsByClassName('account-list-element-value account-column');
 	var data = [];
 	for (var i = 0; i < accountElements.length; i++) {
@@ -79,7 +79,7 @@ var getSaldoAndDifference = function () {
 	console.log('Saldo: ' + saldo);
 	console.log('Difference: ' + difference);
 	displayElement(calculateSaldoTime(Math.abs(saldo).toString(), Math.abs(difference).toString()), data, 'REAL SALDO');
-	displayElement(calculateTimeOfDay(Math.abs(difference).toString(), convertToUnixTimestamp(currentTime)), data, 'LEAVE FOR NO MINUS');
+	displayElement(calculateTimeOfDay(Math.abs(difference).toString(), convertToUnixTimestamp(currentTime)), data, 'DEPARTURE FOR NO DEDUCTIONS');
 };
 
 function displayElement(textContent, data, displayName) {
