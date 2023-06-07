@@ -167,7 +167,7 @@ function calculateSaldoTime(saldo, difference) {
 
 /* --- ^^ Calculate Saldo ^^ --- */
 
-function calculateTimeOfDay(difference, currentTime) {
+function calculateTimeOfDay(difference, currentTimeInUnix) {
 	// Check that the input parameters are in the expected format of 'h.mm'
 	if (!/^\d+\.\d{2}$/.test(difference)) {
 		return 'Invalid input format. Expected format: h.mm';
@@ -177,14 +177,24 @@ function calculateTimeOfDay(difference, currentTime) {
 	const [diffHours, diffMinutes] = difference.split('.').map(Number);
 
 	// Calculate the total minutes
-	const currentTimeInUnix = currentTime;
-
 	const diffInMinutes = diffHours * 60 + diffMinutes;
 	const diffInMilliseconds = diffInMinutes * 60 * 1000;
 
-	// Add UNIX timestamps toghether
-	const newTimestamp = currentTimeInUnix + Math.floor(diffInMilliseconds / 1000);
-	return convertToNormalTime(newTimestamp + 3600);
+	// Add UNIX timestamps together
+	let newTimestamp = currentTimeInUnix + Math.floor(diffInMilliseconds / 1000);
+
+	// Convert the current Unix timestamp to Zurich time
+	const currentTime = new Date(currentTimeInUnix * 1000);
+	const currentHour = parseInt(currentTime.toLocaleString('en-CH', { timeZone: 'Europe/Zurich', hour: '2-digit', hour12: false }));
+
+	// Add an hour if the current hour is less than 12
+	if (currentHour < 12) {
+		newTimestamp += 3600;
+	}
+
+	// Convert the new timestamp to Zurich time
+	const newTime = new Date(newTimestamp * 1000);
+	return newTime.toLocaleString('en-CH', { timeZone: 'Europe/Zurich', hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
 /* --- ^^ Caulculate Time Of Day ^^ --- */
