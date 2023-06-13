@@ -76,10 +76,9 @@ let getSaldoAndDifference = function () {
 
 	const saldo = data[1];
 	const difference = data[3];
-	console.log('Saldo: ' + saldo);
-	console.log('Difference: ' + difference);
-	displayElement(calculateSaldoTime(Math.abs(saldo).toString(), Math.abs(difference).toString()), data, 'REAL SALDO');
-	displayElement(calculateTimeOfDay(Math.abs(difference).toString(), convertToUnixTimestamp(currentTime)), data, 'DEPARTURE FOR NO DEDUCTIONS');
+
+	displayElement(calculateSaldoTime(Math.abs(saldo).toFixed(2), Math.abs(difference).toFixed(2)), data, 'REAL SALDO');
+	displayElement(calculateTimeOfDay(Math.abs(difference).toFixed(2).toString(), convertToUnixTimestamp(currentTime)), data, 'DEPARTURE FOR NO DEDUCTIONS');
 };
 
 function displayElement(textContent, data, displayName) {
@@ -87,7 +86,7 @@ function displayElement(textContent, data, displayName) {
 		const element = document.querySelector('#main');
 		element.remove();
 	}
-	if (data[0] !== 'Absent' && data[1] < 0) {
+	if (data[0] !== 'Absent' /*&& data[1] < 0*/) {
 		// create a new li element with the account-list-item class
 		const liElement = document.createElement('li');
 		liElement.className = 'account-list-item';
