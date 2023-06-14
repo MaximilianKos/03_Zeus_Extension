@@ -1,13 +1,5 @@
 let loaded = false;
 
-window.onload = function () {
-	// Configure the observer to watch for changes to the style attribute
-	observer.observe(workspaceCallbackProcess, { attributes: true });
-};
-
-// Select the element to observe
-const workspaceCallbackProcess = document.getElementById('workspaceCallbackProcess');
-
 // Create a new MutationObserver
 const observer = new MutationObserver((mutations) => {
 	mutations.forEach((mutation) => {
@@ -18,6 +10,19 @@ const observer = new MutationObserver((mutations) => {
 		}
 	});
 });
+
+window.onload = function () {
+	// Select the element to observe
+	const workspaceCallbackProcess = document.getElementById('workspaceCallbackProcess');
+
+	// Check if the element exists
+	if (workspaceCallbackProcess) {
+		// Configure the observer to watch for changes to the style attribute
+		observer.observe(workspaceCallbackProcess, { attributes: true });
+	} else {
+		console.error("Could not find element with id 'workspaceCallbackProcess'.");
+	}
+};
 
 /* --- ^^ If Object on Website loaded (Purple loading top right ^^ --- */
 const currentTime = getTime();
@@ -148,19 +153,29 @@ function calculateSaldoTime(saldo, difference) {
 	let DiffInMinutes = diffHours * 60 + diffMinutes;
 
 	// Add the decimal part of the saldo to the total minutes
-	totalMinutes = DiffInMinutes - SaldoInMinutes;
+	totalMinutes = SaldoInMinutes - DiffInMinutes;
+
+	// Determine if the result should be negative or not
+	const isNegative = totalMinutes > 0;
+	console.log(totalMinutes);
+	console.log(isNegative);
+
+	// Make totalMinutes positive if it's negative
+	totalMinutes = Math.abs(totalMinutes);
 
 	// Calculate the final hours and minutes
 	const resultHours = Math.floor(totalMinutes / 60);
-
 	const resultMinutes = totalMinutes % 60;
 
 	// Format the result as a string in the 'h.mm' format
 	const hoursString = resultHours.toString();
 	const minutesString = resultMinutes.toString().padStart(2, '0');
 
+	// Add a minus sign to the result if necessary
+	const sign = isNegative ? '-' : '';
+
 	// Join the hours and minutes strings together with the appropriate formatting
-	const result = `${hoursString}.${minutesString}`;
+	const result = `${sign}${hoursString}.${minutesString}`;
 	return result;
 }
 
